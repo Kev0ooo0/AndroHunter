@@ -115,21 +115,20 @@ public class HunterActivity extends Activity {
     }
 
     private void readUsersFromSD() throws IOException, ParseException {
-//        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-//            return;
-//        }
-//        File usersFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + CONFIG_FILE_PATH);
-//        JSONParser parser = new JSONParser();
-//        JSONArray users = (JSONArray) parser.parse(new FileReader(usersFile));
-//        for (Object user : users) {
-//            JSONObject jsonUser = (JSONObject) user;
-//            Long id = (Long) jsonUser.get("id");
-//            String authKey = (String) jsonUser.get("authKey");
-//            String name = (String) jsonUser.get("name");
+        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            return;
+        }
+        File usersFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + CONFIG_FILE_PATH);
+        JSONParser parser = new JSONParser();
+        JSONArray users = (JSONArray) parser.parse(new FileReader(usersFile));
+        for (Object user : users) {
+            JSONObject jsonUser = (JSONObject) user;
+            Long id = (Long) jsonUser.get("id");
+            String authKey = (String) jsonUser.get("authKey");
+            String name = (String) jsonUser.get("name");
 
-//            hunters.add(new Hunter(id, authKey, name));
-            hunters.add(new Hunter(29326730L, "c800d226a997986ef6339fe54840e23a", "Dima"));
-//        }
+            hunters.add(new Hunter(id, authKey, name));
+        }
     }
 
     private void fitButtonPanel() {

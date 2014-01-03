@@ -23,8 +23,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class HunterActivity extends Activity {
 
     private static final int REPORT_HUNT_CAPACITY = 100;
-    private static volatile boolean isActive = true;
     private static final String CONFIG_FILE_PATH = "/Android/mice2012_users.json";
+    private static volatile boolean isActive = true;
     private Thread hunterThread;
     private List<String> huntReport;
     private List<Hunter> hunters;
@@ -176,6 +176,8 @@ public class HunterActivity extends Activity {
 
     private Thread createMainThread() {
         return new Thread() {
+            private final long DELAY = 60000L;
+
             public void run() {
                 runOnUiThread(new Runnable() {
                     public void run() {
@@ -186,34 +188,20 @@ public class HunterActivity extends Activity {
                 int i = 0;
                 while (isActive) {
                     try {
-                        for (Hunter hunter : hunters) {
-                            String result = hunter.hunt();
-                            if(result.length() > 0) {
-                                huntReport.add(result);
-                            }
-
-                            if (i == 0) {
-                                result = hunter.getBonus();
-                                if(result.length() > 0) {
-                                    huntReport.add(result);
-                                }
-                            }
+                        boolean redraw = hunt();
+                        if (i == 0) {
+                            redraw = redraw || getBonus();
                         }
-
                         // 4 times a day
-                        if (i > 21600000L / HunterService.DELAY) {
-                            i = 0;
-                        } else {
-                            i++;
+                        i = (i > 21600000L / DELAY) ? 0 : i + 1;
+                        if (redraw) {
+                            runOnUiThread(new Runnable() {
+                                public void run() {
+                                    redrawReport();
+                                }
+                            });
                         }
-
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                redrawReport();
-                            }
-                        });
-
-                        Thread.sleep(HunterService.DELAY);
+                        Thread.sleep(DELAY);
                     } catch (Exception e) {
                         huntReport.add("Exception while hunting -> " + e.getMessage());
                     }
@@ -225,30 +213,82 @@ public class HunterActivity extends Activity {
                     }
                 });
             }
+
+            private boolean hunt() {
+                boolean redraw = false;
+                for (Hunter hunter : hunters) {
+                    String result = hunter.hunt();
+                    if (result.length() > 0) {
+                        huntReport.add(result);
+                        redraw = true;
+                    }
+                }
+                return redraw;
+            }
+
+            private boolean getBonus() {
+                boolean redraw = false;
+                for (Hunter hunter : hunters) {
+                    String result = hunter.getBonus();
+                    if (result.length() > 0) {
+                        huntReport.add(result);
+                        redraw = true;
+                    }
+                }
+                return redraw;
+            }
         };
     }
 
     private Thread createSSThread() {
         return new Thread() {
+            private final long DELAY = 1000L;
+
             public void run() {
+                int i = 0;
                 while (isActive) {
                     try {
-                        int hunterNumber = (int) (Math.random() * hunters.size());
-                        Hunter hunter = hunters.get(hunterNumber);
-                        String result = hunter.doMoneyOnMarket();
-                        if(result.length() > 0) {
-                            huntReport.add(result);
+                        boolean redraw = randomBuySS();
+                        if (i == 0) {
+                            redraw = redraw || sellSS();
+                        }
+                        i = (i > 3600000L / DELAY) ? 0 : i + 1;
+                        if (redraw) {
                             runOnUiThread(new Runnable() {
                                 public void run() {
                                     redrawReport();
                                 }
                             });
                         }
-                        Thread.sleep(1000L);
+                        Thread.sleep(DELAY);
                     } catch (Exception e) {
                         huntReport.add("Exception while doing money on market -> " + e.getMessage());
                     }
                 }
+            }
+
+            private boolean randomBuySS() {
+                boolean redraw = false;
+                int hunterNumber = (int) (Math.random() * hunters.size());
+                Hunter hunter = hunters.get(hunterNumber);
+                List<String> result = hunter.buyCheapSS();
+                if (result.size() > 0) {
+                    huntReport.addAll(result);
+                    redraw = true;
+                }
+                return redraw;
+            }
+
+            private boolean sellSS() {
+                boolean redraw = false;
+                for (Hunter hunter : hunters) {
+                    String result = hunter.sellSS();
+                    if (result.length() > 0) {
+                        huntReport.add(result);
+                        redraw = true;
+                    }
+                }
+                return redraw;
             }
         };
     }

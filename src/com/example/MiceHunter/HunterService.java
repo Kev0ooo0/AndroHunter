@@ -23,8 +23,6 @@ import java.util.List;
  * @author Dzmitry Bezugly
  */
 class HunterService {
-    //1 min delay
-    public static final long DELAY = 60000L;
     private static final String DOMAIN = "http://mice2112.com";
 
     public static String prettyResponse(String response, String name) {
@@ -136,13 +134,13 @@ class HunterService {
         }
     }
 
-    public static List<String> searchSSOnMarket(Long vkUserId, String authKey) {
+    public static List<SSInfo> searchSSOnMarket(Long vkUserId, String authKey) {
         try {
             String response = sendSearchOnMarketRequest(vkUserId, authKey, "option_cheese_5", 7200, 0);
             return parseSearchOnMarketResponse(response);
         } catch (IOException e) {
             e.printStackTrace();
-            return new ArrayList<String>();
+            return new ArrayList<SSInfo>();
         }
     }
 
@@ -158,14 +156,23 @@ class HunterService {
         return doPOSTRequest(URL_PATTERN, params);
     }
 
-    private static List<String> parseSearchOnMarketResponse(String response) {
+    private static List<SSInfo> parseSearchOnMarketResponse(String response) {
         Document doc = Jsoup.parse(response);
-        Elements elements = doc.select("a[id^=buy_confirm_]");
-        List<String> eids = new ArrayList<String>();
-        for (Element element : elements) {
-            eids.add(element.attr("eid"));
+        Elements ssItems = doc.select("tr[id^=result_tr_]");
+        List<SSInfo> ssInfoList = new ArrayList<SSInfo>();
+        for (Element ssItem : ssItems) {
+            SSInfo ss = new SSInfo();
+            Elements amount = ssItem.select("td:eq(1)");
+            ss.amount = Integer.decode(amount.get(0).text());
+            Elements price = ssItem.select("td:eq(2)");
+            ss.price = Integer.decode(price.get(0).text());
+            Elements totalValue = ssItem.select("td:eq(4)");
+            ss.totalValue = Long.decode(totalValue.get(0).text());
+            Elements eid = ssItem.select("td:eq(5)>a:first-child");
+            ss.eid = eid.get(0).attr("eid");
+            ssInfoList.add(ss);
         }
-        return eids;
+        return ssInfoList;
     }
 
     public static Boolean buySSOnMarket(Long vkUserId, String authKey, String eid) {
@@ -206,7 +213,6 @@ class HunterService {
             e.printStackTrace();
             return Boolean.FALSE;
         }
-
     }
 
     private static String sendSellOnMarketRequest(Long vkUserId, String authKey, String eid,

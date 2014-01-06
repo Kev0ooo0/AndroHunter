@@ -1,4 +1,4 @@
-package com.example.MiceHunter;
+package com.example.MiceHunter.domain;
 
 /**
  * @author dzmiter

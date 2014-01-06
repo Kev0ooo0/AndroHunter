@@ -12,29 +12,30 @@
 
             >
         <Button
-                android:id="@+id/run"
+                android:id="@+id/runMain"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Run"
+                android:text="@string/runMain"
                 />
         <Button
-                android:id="@+id/stop"
+                android:id="@+id/runSS"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Stop"
-                android:layout_toRightOf="@+id/run"
+                android:text="@string/runSS"
+                android:layout_toRightOf="@+id/runMain"
                 />
         <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Refresh users"
                 android:id="@+id/refresh"
-                android:layout_toRightOf="@+id/stop"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/refresh"
+                android:layout_toRightOf="@+id/runSS"
+                />
         <Button
                 android:id="@+id/exit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Exit"
+                android:text="@string/exit"
                 android:layout_toRightOf="@+id/refresh"
                 />
     </RelativeLayout>

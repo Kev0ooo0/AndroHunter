@@ -1,5 +1,6 @@
-package com.example.MiceHunter;
+package com.example.MiceHunter.service;
 
+import com.example.MiceHunter.domain.SSInfo;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -22,7 +23,7 @@ import java.util.List;
 /**
  * @author Dzmitry Bezugly
  */
-class HunterService {
+public class HunterService {
     private static final String DOMAIN = "http://mice2112.com";
 
     public static String prettyResponse(String response, String name) {
@@ -30,15 +31,10 @@ class HunterService {
         return format.format(new Date()) + " " + name + " " + response;
     }
 
-    public static String hunt(Long vkUserId, String authKey) {
-        try {
-            String response = sendHuntRequest(vkUserId, authKey);
-            controlCheeseCount(response, vkUserId, authKey);
-            return parseHuntResponse(response);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }
+    public static String hunt(Long vkUserId, String authKey) throws IOException {
+        String response = sendHuntRequest(vkUserId, authKey);
+        controlCheeseCount(response, vkUserId, authKey);
+        return parseHuntResponse(response);
     }
 
     private static String sendHuntRequest(Long vkUserId, String authKey) throws IOException {
@@ -57,18 +53,14 @@ class HunterService {
         return "";
     }
 
-    public static void getBonus(Long vkUserId, String authKey) {
+    public static void getBonus(Long vkUserId, String authKey) throws IOException {
         final String URL_PATTERN = DOMAIN + "/game/bonus";
         final String URL_PARAMETERS = "auth_key=$authKey&viewer_id=$vkUserId";
         String params = URL_PARAMETERS.replace("$authKey", authKey).replace("$vkUserId", vkUserId.toString());
-        try {
-            doPOSTRequest(URL_PATTERN, params);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        doPOSTRequest(URL_PATTERN, params);
     }
 
-    public static void controlCheeseCount(String response, Long vkUserId, String authKey) {
+    public static void controlCheeseCount(String response, Long vkUserId, String authKey) throws IOException {
         String start = "Application.updateParamCampActiveCheeseCount(";
         String end = ");";
         int startIndex = response.indexOf(start);
@@ -107,41 +99,29 @@ class HunterService {
     }
 
     //blue cheese - cheeseId = 13, locationId = 2
-    private static void buyCheese(Long vkUserId, String authKey, int cheeseId, int count, int locationId) {
+    private static void buyCheese(Long vkUserId, String authKey,
+                                  int cheeseId, int count, int locationId) throws IOException {
         final String URL_PATTERN = DOMAIN + "/shop/buy/";
         final String URL_PARAMETERS = "auth_key=$authKey&count=$count&eid=$cheeseId" +
                 "&free=1&location_id=$locationId&viewer_id=$vkUserId";
         String params = URL_PARAMETERS.replace("$authKey", authKey).replace("$vkUserId", vkUserId.toString())
                 .replace("$count", count + "").replace("$cheeseId", cheeseId + "")
                 .replace("$locationId", locationId + "");
-        try {
-            doPOSTRequest(URL_PATTERN, params);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        doPOSTRequest(URL_PATTERN, params);
     }
 
     //blue id = 4
-    private static void setActiveCheese(Long vkUserId, String authKey, int id) {
+    private static void setActiveCheese(Long vkUserId, String authKey, int id) throws IOException {
         final String URL_PATTERN = DOMAIN + "/game/set-active-cheese/";
         final String URL_PARAMETERS = "auth_key=$authKey&is_boss_camp=0&item_id=$id&type=arm&viewer_id=$vkUserId";
         String params = URL_PARAMETERS.replace("$authKey", authKey).replace("$vkUserId", vkUserId.toString())
                 .replace("$id", id + "");
-        try {
-            doPOSTRequest(URL_PATTERN, params);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        doPOSTRequest(URL_PATTERN, params);
     }
 
-    public static List<SSInfo> searchSSOnMarket(Long vkUserId, String authKey) {
-        try {
-            String response = sendSearchOnMarketRequest(vkUserId, authKey, "option_cheese_5", 7200, 0);
-            return parseSearchOnMarketResponse(response);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ArrayList<SSInfo>();
-        }
+    public static List<SSInfo> searchSSOnMarket(Long vkUserId, String authKey) throws IOException {
+        String response = sendSearchOnMarketRequest(vkUserId, authKey, "option_cheese_5", 7200, 0);
+        return parseSearchOnMarketResponse(response);
     }
 
     private static String sendSearchOnMarketRequest(Long vkUserId, String authKey, String filter,
@@ -175,14 +155,9 @@ class HunterService {
         return ssInfoList;
     }
 
-    public static Boolean buySSOnMarket(Long vkUserId, String authKey, String eid) {
-        try {
-            String response = sendBuyOnMarketRequest(vkUserId, authKey, "option_cheese_5", 7200, 0, eid);
-            return parseJSONMarketResponse(response);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Boolean.FALSE;
-        }
+    public static Boolean buySSOnMarket(Long vkUserId, String authKey, String eid) throws ParseException, IOException {
+        String response = sendBuyOnMarketRequest(vkUserId, authKey, "option_cheese_5", 7200, 0, eid);
+        return parseJSONMarketResponse(response);
     }
 
     private static String sendBuyOnMarketRequest(Long vkUserId, String authKey, String filter,
@@ -205,14 +180,9 @@ class HunterService {
         return status.equals("OK");
     }
 
-    public static Boolean sellSSOnMarket(Long vkUserId, String authKey, Integer count) {
-        try {
-            String response = sendSellOnMarketRequest(vkUserId, authKey, "5", count, 8000);
-            return parseJSONMarketResponse(response);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Boolean.FALSE;
-        }
+    public static Boolean sellSSOnMarket(Long vkUserId, String authKey, Integer count) throws IOException, ParseException {
+        String response = sendSellOnMarketRequest(vkUserId, authKey, "5", count, 8000);
+        return parseJSONMarketResponse(response);
     }
 
     private static String sendSellOnMarketRequest(Long vkUserId, String authKey, String eid,
@@ -227,15 +197,9 @@ class HunterService {
         return doPOSTRequest(URL_PATTERN, params);
     }
 
-
-    public static Integer getSSCount(Long vkUserId, String authKey) {
-        try {
-            String response = sendSSCountRequest(vkUserId, authKey);
-            return parseSSCountResponse(response);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return 0;
-        }
+    public static Integer getSSCount(Long vkUserId, String authKey) throws IOException {
+        String response = sendSSCountRequest(vkUserId, authKey);
+        return parseSSCountResponse(response);
     }
 
     private static String sendSSCountRequest(Long vkUserId, String authKey) throws IOException {

@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MiceHunter</string>
+    <string name="runMain">Начать охоту</string>
+    <string name="stopMain">Закончить охоту</string>
+    <string name="runSS">Начать махинации</string>
+    <string name="stopSS">Закончить махинации</string>
+    <string name="exit">Выход</string>
+    <string name="stopping">Подождите завершения</string>
+    <string name="refresh">Обновить охотников</string>
 </resources>

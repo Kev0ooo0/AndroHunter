@@ -33,23 +33,21 @@ public class Hunter {
     }
 
     public String hunt() {
-        String response;
         try {
-            response = HunterService.hunt(id, authKey);
+            String response = HunterService.hunt(id, authKey);
+            return response.length() > 0 ? HunterService.prettyResponse(response, name) : "";
         } catch (IOException e) {
-            response = e.getMessage();
+            return HunterService.printStackTrace(e);
         }
-        return response.length() > 0 ? HunterService.prettyResponse(response, name) : "";
     }
 
     public String getBonus() {
-        String response = "попытался получить дневной бонус.";
         try {
             HunterService.getBonus(id, authKey);
+            return HunterService.prettyResponse("попытался получить дневной бонус.", name);
         } catch (IOException e) {
-            response = e.getMessage();
+            return HunterService.printStackTrace(e);
         }
-        return HunterService.prettyResponse(response, name);
     }
 
     public String sellSS() {
@@ -64,7 +62,7 @@ public class Hunter {
             }
             return "";
         } catch (Exception e) {
-            return HunterService.prettyResponse(e.getMessage(), name);
+            return HunterService.printStackTrace(e);
         }
     }
 
@@ -79,7 +77,7 @@ public class Hunter {
             return responses;
         } catch (Exception e) {
             List<String> responses = new ArrayList<String>();
-            responses.add(e.getMessage());
+            responses.add(HunterService.printStackTrace(e));
             return responses;
         }
     }

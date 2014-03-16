@@ -10,7 +10,7 @@ import java.util.List;
 public abstract class Hunting extends Base {
 
     public Hunting(List<String> huntReport, List<Hunter> hunters) {
-        super(60000L, true, huntReport, hunters);
+        super(500000L, true, huntReport, hunters);
     }
 
     @Override
